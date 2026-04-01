@@ -1,0 +1,376 @@
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Launcher Minecraft</title>
+    <style>
+        body {
+            background: linear-gradient(135deg, #181c24 0%, #23272f 100%);
+            min-height: 100vh;
+            margin: 0;
+            font-family: 'Segoe UI', Arial, sans-serif;
+            display: flex;
+            align-items: stretch;
+            justify-content: flex-start;
+        }
+        /* Usunięto skalowanie, przywrócono domyślne */
+        .sidebar {
+            width: 90px;
+            background: #181c24;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 32px 0 0 0;
+            box-shadow: 2px 0 16px rgba(0,0,0,0.18);
+        }
+        .sidebar-logo {
+            width: 56px;
+            height: 56px;
+            margin-bottom: 32px;
+            background: url('https://static.wikia.nocookie.net/minecraft_gamepedia/images/5/51/Grass_Block_JE5_BE3.png') center/cover no-repeat;
+            border-radius: 12px;
+            border: 2px solid #00b4ff;
+        }
+        .sidebar-btn {
+            width: 48px;
+            height: 48px;
+            margin-bottom: 18px;
+            background: #23272f;
+            border-radius: 12px;
+            border: none;
+            color: #00b4ff;
+            font-size: 1.7rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: background 0.2s, color 0.2s;
+        }
+        .sidebar-btn.active, .sidebar-btn:hover {
+            background: #00b4ff;
+            color: #fff;
+        }
+        .profile-section {
+            margin-top: auto;
+            margin-bottom: 32px;
+            text-align: center;
+            padding: 0 8px;
+        }
+        .profile-avatar {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: #23272f;
+            margin: 0 auto 8px auto;
+            border: 2px solid #00b4ff;
+            background-image: url('https://minotar.net/avatar/Steve/40');
+            background-size: cover;
+        }
+        .profile-name {
+            color: #00b4ff;
+            font-size: 1.05em;
+            font-weight: bold;
+        }
+        .main-content {
+            flex: 1;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .launcher-container {
+            background: rgba(34, 40, 49, 0.98);
+            padding: 48px 40px 36px 40px;
+            border-radius: 22px;
+            box-shadow: 0 8px 32px rgba(0,0,0,0.32);
+            text-align: left;
+            width: 410px;
+            min-height: 520px;
+            display: flex;
+            flex-direction: column;
+            justify-content: flex-start;
+        }
+        .launcher-title {
+            color: #00b4ff;
+            font-size: 2.2rem;
+            margin-bottom: 18px;
+            letter-spacing: 1px;
+            font-weight: bold;
+        }
+        .launcher-select, input.launcher-select {
+            width: 100%;
+            padding: 12px;
+            border-radius: 8px;
+            border: 1.5px solid #00b4ff;
+            margin-bottom: 24px;
+            font-size: 1.08rem;
+            background: #23272f;
+            color: #fff;
+            outline: none;
+        }
+        .launcher-btn {
+            width: 100%;
+            padding: 14px;
+            border: none;
+            border-radius: 8px;
+            background: linear-gradient(90deg, #00b4ff 0%, #00ffb8 100%);
+            color: #181c24;
+            font-size: 1.18rem;
+            font-weight: bold;
+            cursor: pointer;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.10);
+            margin-bottom: 10px;
+            transition: background 0.2s, color 0.2s;
+        }
+        .launcher-btn:hover {
+            background: linear-gradient(90deg, #0099e6 0%, #00e6a8 100%);
+            color: #fff;
+        }
+        .launcher-tabs {
+            display: flex;
+            justify-content: flex-start;
+            margin-bottom: 24px;
+            gap: 12px;
+        }
+        .tab-btn {
+            flex: none;
+            padding: 10px 24px;
+            background: none;
+            border: none;
+            color: #b0b8c6;
+            font-size: 1.08rem;
+            cursor: pointer;
+            border-bottom: 2.5px solid transparent;
+            border-radius: 0;
+            font-weight: 500;
+            transition: border 0.2s, color 0.2s;
+        }
+        .tab-btn.active, .tab-btn:hover {
+            color: #00b4ff;
+            border-bottom: 2.5px solid #00b4ff;
+        }
+        .tab-content {
+            margin-top: 8px;
+        }
+        .server-list {
+            margin-top: 8px;
+            max-height: 180px;
+            overflow-y: auto;
+        }
+        .server-item {
+            background: #23272f;
+            border-radius: 8px;
+            padding: 12px 14px;
+            margin-bottom: 12px;
+            color: #fff;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+        }
+        .server-title {
+            font-weight: bold;
+            color: #00b4ff;
+            font-size: 1.1em;
+        }
+        .server-desc {
+            font-size: 0.98em;
+            color: #aaa;
+            margin-bottom: 4px;
+        }
+        .server-ip {
+            font-size: 0.97em;
+            margin-bottom: 2px;
+        }
+        .server-votes {
+            font-size: 0.93em;
+            color: #00b4ff;
+        }
+        .copy-btn {
+            margin-left: 8px;
+            padding: 2px 10px;
+            border: none;
+            border-radius: 4px;
+            background: #00b4ff;
+            color: #232526;
+            font-size: 0.95em;
+            cursor: pointer;
+            transition: background 0.2s;
+        }
+        .copy-btn:hover {
+            background: #0099e6;
+            color: #fff;
+        }
+        label, .profile-section label {
+            color: #b0b8c6;
+            font-size: 1.01em;
+        }
+        @media (max-width: 700px) {
+            .main-content { justify-content: flex-start; }
+            .launcher-container { width: 98vw; min-width: unset; padding: 18px 4vw; }
+            .sidebar { width: 60px; padding: 12px 0 0 0; }
+            .sidebar-logo { width: 36px; height: 36px; }
+        }
+    </style>
+</head>
+<body>
+    <div style="width:100vw;min-height:100vh;display:flex;align-items:center;justify-content:center;">
+        <div class="sidebar">
+        <div class="sidebar-logo"></div>
+        <button class="sidebar-btn active" title="Minecraft"><span>🟩</span></button>
+        <button class="sidebar-btn" title="Inne gry" disabled style="opacity:0.4;">🎮</button>
+        <div class="profile-section">
+            <div class="profile-avatar"></div>
+            <div class="profile-name" id="profileName">Gracz</div>
+        </div>
+        </div>
+    </div>
+    <div class="main-content">
+        <div class="launcher-container">
+            <div class="launcher-title">Minecraft</div>
+            <div class="launcher-tabs">
+                <button class="tab-btn active" onclick="showTab('play')" id="tab-play">Graj</button>
+            </div>
+            <div class="tab-content" id="tab-content-play">
+                <label for="versionSelect">Wersja gry:</label>
+                <select class="launcher-select" id="versionSelect">
+                    <option value="1.8.8/1.8.8.html">Minecraft 1.8.8</option>
+                    <option value="1.12.2/MC_1.12.2.html">Minecraft 1.12.2</option>
+                </select>
+                <button class="launcher-btn" onclick="launchGame()">Uruchom</button>
+                <hr style="margin:24px 0 16px 0; border:0; border-top:1px solid #222;">
+                <div style="color:#00b4ff;font-weight:bold;margin-bottom:10px;">Lista serwerów Eaglercraft</div>
+                <div id="serverList" class="server-list"></div>
+            </div>
+            <footer class="launcher-footer">
+                <div>Launcher v2.0 | &copy; 2026 by Goleb | <a href="#" style="color:#00b4ff;">Regulamin</a> | <a href="#" style="color:#00b4ff;">Polityka prywatności</a></div>
+            </footer>
+        </div>
+    </div>
+    <script>
+        function showTab(tab) {
+            // Pokazuje tylko zakładkę "Graj"
+            document.getElementById('tab-content-play').style.display = '';
+            document.getElementById('tab-play').classList.add('active');
+        }
+
+        function launchGame() {
+            const select = document.getElementById('versionSelect');
+            const url = select.value;
+            window.location.href = url;
+        }
+
+        // Usunięte funkcje: savePlayerName, loadPlayerName, changeTheme
+
+        // Lista serwerów z https://servers.eaglercraft.com/ (statyczna)
+        const servers = [
+            { name: 'TuffNET', ip: 'wss://tuff.ws', desc: 'SURVIVAL, SKYBLOCK, RPG', votes: 306 },
+            { name: 'VanillaMC', ip: 'wss://vanillamc.org', desc: 'PVP, FACTIONS, SURVIVAL', votes: 280 },
+            { name: 'Voidsent MC', ip: 'wss://mc.voidsent.net', desc: 'PVP, PVE, FACTIONS, MINIGAMES, SURVIVAL, RPG, MISC', votes: 223 },
+            { name: 'Dumbshit Survival X', ip: 'wss://mc.dssx.uk', desc: 'SURVIVAL, MINIGAMES', votes: 94 },
+            { name: 'Lifesteal & Creative & Anarchy', ip: 'wss://play.heartsmp.net', desc: 'PVP, PVE, FACTIONS, SURVIVAL, MISC, MINIGAMES, CREATIVE, SKYBLOCK, PRISON, RPG', votes: 80 },
+            { name: "null's World", ip: 'wss://mc.nullsworld.net', desc: 'PVP, MINIGAMES, PVE, SURVIVAL, CREATIVE, SKYBLOCK, RPG, MISC', votes: 41 },
+            { name: 'Fyre Network', ip: 'wss://eagler.imcalledfyre.com', desc: 'PVP, MINIGAMES, SURVIVAL, PRISON, MISC, SKYBLOCK, PVE', votes: 39 },
+            { name: 'xenaMC', ip: 'wss://xenamc.com', desc: 'PVP, MINIGAMES, SURVIVAL, SKYBLOCK, MISC', votes: 25 },
+            { name: 'WanderwoodSMP', ip: 'wss://wanderwood.thatonebot.site', desc: 'PVP, MINIGAMES, SURVIVAL', votes: 20 },
+            { name: 'BedWetr', ip: 'wss://bedw3tr.bytommy.uk', desc: 'SURVIVAL, MINIGAMES, PVP, MISC', votes: 17 },
+        ];
+
+        function renderServerList() {
+            const list = document.getElementById('serverList');
+            list.innerHTML = servers.map(s => `
+                <div class="server-item">
+                    <div class="server-title">${s.name}</div>
+                    <div class="server-desc">${s.desc}</div>
+                    <div class="server-ip">IP: <span>${s.ip}</span> <button class="copy-btn" onclick="copyIP('${s.ip}')">Kopiuj</button></div>
+                    <div class="server-votes">Głosy: ${s.votes}</div>
+                </div>
+            `).join('');
+        }
+
+        function copyIP(ip) {
+            navigator.clipboard.writeText(ip);
+            alert('Skopiowano IP: ' + ip);
+        }
+
+        // Załaduj nazwę gracza i serwery przy starcie
+        window.onload = function() {
+            renderServerList();
+        };
+    </script>
+    <style>
+        .server-list {
+            margin-top: 8px;
+            max-height: 260px;
+            overflow-y: auto;
+        }
+        .server-item {
+            background: #232526;
+            border-radius: 8px;
+            padding: 12px 14px;
+            margin-bottom: 12px;
+            color: #fff;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+        }
+        .server-title {
+            font-weight: bold;
+            color: #00ff99;
+            font-size: 1.1em;
+        }
+        .server-desc {
+            font-size: 0.98em;
+            color: #aaa;
+            margin-bottom: 4px;
+        }
+        .server-ip {
+            font-size: 0.97em;
+            margin-bottom: 2px;
+        }
+        .server-votes {
+            font-size: 0.93em;
+            color: #00ff99;
+        }
+        .copy-btn {
+            margin-left: 8px;
+            padding: 2px 10px;
+            border: none;
+            border-radius: 4px;
+            background: #00ff99;
+            color: #232526;
+            font-size: 0.95em;
+            cursor: pointer;
+            transition: background 0.2s;
+        }
+        .copy-btn:hover {
+            background: #00cc77;
+        }
+    </style>
+    <style>
+        .launcher-tabs {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 24px;
+        }
+        .tab-btn {
+            flex: 1;
+            padding: 10px 0;
+            background: none;
+            border: none;
+            color: #fff;
+            font-size: 1.05rem;
+            cursor: pointer;
+            border-bottom: 2px solid transparent;
+            transition: border 0.2s, color 0.2s;
+        }
+        .tab-btn.active {
+            color: #00ff99;
+            border-bottom: 2px solid #00ff99;
+        }
+        .tab-content {
+            margin-top: 8px;
+        }
+        input.launcher-select {
+            background: #232526;
+            color: #fff;
+            border: 1px solid #00ff99;
+        }
+    </style>
+</body>
+</html>
